@@ -1,5 +1,5 @@
 opencv-python
-ultralytics==11.0.0
+ultralytics==11.0.1111
 torch==1.9.0
 torchvision==0.10.0
 numpy
