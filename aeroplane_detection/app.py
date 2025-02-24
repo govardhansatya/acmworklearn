@@ -8,7 +8,7 @@ st.title("Aeroplanes Detection in Airport Imagery")
 st.markdown("Real-time detection using webcam")
 
 # Load the trained YOLO model
-model = YOLO("best (1).pt")
+model = YOLO("best.pt")
 
 # Session state for webcam control
 if "webcam_active" not in st.session_state:
