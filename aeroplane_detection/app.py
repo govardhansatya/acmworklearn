@@ -1,14 +1,16 @@
-import numpy as np
-import cv2
-from ultralytics import YOLO
 import streamlit as st
+import cv2
+import av
+import numpy as np
+from streamlit_webrtc import webrtc_streamer, VideoTransformerBase
+from ultralytics import YOLO
+
+# Load YOLO model
+model = YOLO("best.pt")
 
 # Streamlit UI
 st.title("Aeroplanes Detection in Airport Imagery")
 st.markdown("Real-time detection using webcam")
-
-# Load the trained YOLO model
-model = YOLO("best.pt")
 
 # Session state for webcam control
 if "webcam_active" not in st.session_state:
@@ -16,9 +18,6 @@ if "webcam_active" not in st.session_state:
 
 start_button = st.button("Start Webcam")
 stop_button = st.button("Stop Webcam")
-
-# Create a placeholder for the video feed
-video_placeholder = st.empty()
 
 # Start webcam
 if start_button:
@@ -28,31 +27,17 @@ if start_button:
 if stop_button:
     st.session_state.webcam_active = False
 
-# Open webcam if the session state is active
-if st.session_state.webcam_active:
-    cap = cv2.VideoCapture(0)  # Use 1 for external webcam
-
-    while cap.isOpened() and st.session_state.webcam_active:
-        ret, frame = cap.read()
-        if not ret:
-            break
+class VideoTransformer(VideoTransformerBase):
+    def transform(self, frame):
+        img = frame.to_ndarray(format="bgr24")
 
         # Run YOLO inference
-        results = model(frame, conf=0.8)
+        results = model(img, conf=0.8)
 
-        # Annotate the frame with detection results
+        # Annotate the frame
         annotated_frame = results[0].plot()
+        return av.VideoFrame.from_ndarray(annotated_frame, format="bgr24")
 
-        # Convert frame to RGB (Streamlit requires RGB format)
-        annotated_frame = cv2.cvtColor(annotated_frame, cv2.COLOR_BGR2RGB)
-
-        # Display the frame in Streamlit
-        video_placeholder.image(annotated_frame, channels="RGB", use_column_width=True)
-
-        # Break loop when the stop button is pressed
-        if not st.session_state.webcam_active:
-            break
-
-    cap.release()
-    cv2.destroyAllWindows()
-    video_placeholder.empty() 
+# Only start webcam if active
+if st.session_state.webcam_active:
+    webrtc_streamer(key="example", video_transformer_factory=VideoTransformer)
