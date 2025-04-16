@@ -1,0 +1,13 @@
+[
+    {
+      "user_id": "auth0|user123",
+      "session_id": "abc123",
+      "input": "Write a sci-fi game script.",
+      "output": "Captain Zara stood before the control panel...",
+      "type": "script",
+      "mode": "create",
+      "timestamp": "2025-04-12T10:00:00Z",
+      "feedback": null
+    }
+  ]
+  
